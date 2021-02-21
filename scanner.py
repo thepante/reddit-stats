@@ -15,7 +15,7 @@ db_name = 'DATA1.db'
 subreddit = 'uruguay'
 
 date_from  = date(2020, 12, 1)
-date_until = date(2020, 12, 31)
+date_until = date(2020, 12, 3)
 
 enable_raw_stats = True
 enable_counting  = True
@@ -23,6 +23,7 @@ enable_ranking   = True
 
 types = ['submission', 'comment']
 url = "https://api.pushshift.io/reddit/{}/search?&limit=10000&sort=desc&subreddit={}&before={}"
+headers = {'User-Agent': "Object counter by u/Canillita"}
 
 columns = ['s', 'c'] # submissions, comments - columns names for counting
 
@@ -38,16 +39,16 @@ requests_failed = 0
 con = sqlite3.connect(db_name)
 db = con.cursor()
 
-def table_creation(query):
+def create_table(table_definition):
   try:
-    db.execute(query)
+    db.execute(f"CREATE TABLE {table_definition}")
     con.commit()
   except Error:
     pass
 
-enable_raw_stats and table_creation("CREATE TABLE raw(id text PRIMARY KEY, date text, type text)")
-enable_counting  and table_creation("CREATE TABLE count(date text PRIMARY KEY, s text, c text, total text, users text)")
-enable_ranking   and table_creation("CREATE TABLE ranking(user text PRIMARY KEY, s integer DEFAULT 0, c integer DEFAULT 0)")
+enable_raw_stats and create_table("raw(id text PRIMARY KEY, date text, type text)")
+enable_counting  and create_table("count(date text PRIMARY KEY, s text, c text, total text, users text)")
+enable_ranking   and create_table("ranking(user text PRIMARY KEY, s integer DEFAULT 0, c integer DEFAULT 0)")
 
 print(f"Database: {db_name}")
 
@@ -98,7 +99,6 @@ for type in types:
   while True:
     show_progress(type, previous_epoch)
     actual_url = url.format(type, subreddit, previous_epoch)
-    headers = {'User-Agent': "Object counter by u/Canillita"}
     request = requests.get(actual_url, headers=headers)
     requests_made += 1
 
@@ -130,7 +130,7 @@ for type in types:
 
       if enable_raw_stats:
         query = "INSERT OR IGNORE INTO raw(id, date, type) VALUES (?, ?, ?);"
-        date  = datetime.utcfromtimestamp(entry_timestamp).strftime('%y-%m-%d')
+        date  = datetime.fromtimestamp(entry_timestamp).strftime('%y-%m-%d')
         entry_data = (entry['id'], date, type[0])
         db.execute(query, entry_data)
 
