@@ -3,6 +3,7 @@ import time
 import requests
 import sqlite3
 
+from argparse import ArgumentParser
 from datetime import datetime, timedelta, date
 from sqlite3 import Error
 
@@ -11,19 +12,30 @@ from sqlite3 import Error
   Final data is ready for visualization
 """
 
-db_name = 'DATA1.db'
-subreddit = 'uruguay'
+parser = ArgumentParser()
+parser.add_argument('-d', type=str, help='Database to use')
+parser.add_argument('-s', type=str, required=True, help='Subreddit to scan')
+parser.add_argument('--since', type=str, required=True, help='Since what date to scan')
+parser.add_argument('--until', type=str, required=True, help='Until what date scan')
+parser.add_argument('--user', type=str, default='Canillita', help='Your username')
+args = parser.parse_args()
 
-date_from  = date(2020, 12, 1)
-date_until = date(2020, 12, 3)
+db_name = args.d or f"{args.s}.db"
+subreddit = args.s
+
+try:
+  date_from  = datetime.strptime(args.since, '%Y-%m-%d')
+  date_until = datetime.strptime(args.until, '%Y-%m-%d')
+except ValueError:
+  raise ValueError("Incorrect date format. Should be: YYYY-MM-DD")
 
 enable_raw_stats = True
 enable_counting  = True
 enable_ranking   = True
 
 types = ['submission', 'comment']
-url = "https://api.pushshift.io/reddit/{}/search?&limit=10000&sort=desc&subreddit={}&before={}"
-headers = {'User-Agent': "Object counter by u/Canillita"}
+url = "https://api.pushshift.io/reddit/{}/search?&limit=1000&sort=desc&subreddit={}&before={}"
+headers = {'User-Agent': f"Object counter by u/{args.user}"}
 
 columns = ['s', 'c'] # submissions, comments - columns names for counting
 
@@ -101,6 +113,8 @@ for type in types:
     actual_url = url.format(type, subreddit, previous_epoch)
     request = requests.get(actual_url, headers=headers)
     requests_made += 1
+
+    print(actual_url)
 
     # delay if server error
     # if request.status_code == 502:
