@@ -13,15 +13,15 @@ from sqlite3 import Error
 """
 
 parser = ArgumentParser()
-parser.add_argument('-d', type=str, help='Database to use')
-parser.add_argument('-s', type=str, required=True, help='Subreddit to scan')
-parser.add_argument('--since', type=str, required=True, help='Since what date to scan')
-parser.add_argument('--until', type=str, required=True, help='Until what date scan')
-parser.add_argument('--user', type=str, default='Canillita', help='Your username')
+parser.add_argument('-d', type=str, help='database to use', metavar='')
+parser.add_argument('-r', type=str, required=True, help='subreddit to scan', metavar='')
+parser.add_argument('--since', type=str, required=True, help='since what date to scan', metavar='')
+parser.add_argument('--until', type=str, required=True, help='until what date scan', metavar='')
+parser.add_argument('--user', type=str, default='Canillita', help='your username', metavar='')
 args = parser.parse_args()
 
-db_name = args.d or f"{args.s}.db"
-subreddit = args.s
+db_name = args.d or f"{args.r}.db"
+subreddit = args.r
 
 try:
   date_from  = datetime.strptime(args.since, '%Y-%m-%d')
