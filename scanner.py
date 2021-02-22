@@ -9,7 +9,7 @@ from sqlite3 import Error
 
 """
   Scans submissions and comments: collects ids with its dates and/or ranks by author
-  Final data is ready for visualization
+  'Count' and 'ranking' tables are ready for visualization
 """
 
 parser = ArgumentParser()
@@ -113,8 +113,6 @@ for type in types:
     actual_url = url.format(type, subreddit, previous_epoch)
     request = requests.get(actual_url, headers=headers)
     requests_made += 1
-
-    print(actual_url)
 
     # delay if server error
     # if request.status_code == 502:
