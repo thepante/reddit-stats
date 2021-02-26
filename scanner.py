@@ -27,10 +27,10 @@ try:
   date_from  = datetime.strptime(args.since, '%Y-%m-%d')
   date_until = datetime.strptime(args.until, '%Y-%m-%d')
 except ValueError:
-  raise ValueError("Incorrect date format. Should be: YYYY-MM-DD")
+  raise SystemExit("Incorrect date format. Should be: YYYY-MM-DD")
 
 if date_from > date_until:
-  raise Exception("Start date (--since) can't be after finish date (--until)")
+  raise SystemExit("Start date (--since) can't be after finish date (--until)")
 
 enable_raw_stats = True
 enable_counting  = True
