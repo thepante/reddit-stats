@@ -27,7 +27,10 @@ try:
   date_from  = datetime.strptime(args.since, '%Y-%m-%d')
   date_until = datetime.strptime(args.until, '%Y-%m-%d')
 except ValueError:
-  raise ValueError("Incorrect date format. Should be: YYYY-MM-DD")
+  raise SystemExit("Incorrect date format. Should be: YYYY-MM-DD")
+
+if date_from > date_until:
+  raise SystemExit("Start date (--since) can't be after finish date (--until)")
 
 enable_raw_stats = True
 enable_counting  = True
@@ -39,6 +42,7 @@ headers = {'User-Agent': f"Object counter by u/{args.user}"}
 
 columns = ['s', 'c'] # submissions, comments - columns names for counting
 
+date_until += timedelta(days=1) # add 1 day so --until is included in time period
 time_from  = int(date_from.strftime("%s"))
 time_until = int(date_until.strftime("%s"))
 time_diff  = time_until - time_from
